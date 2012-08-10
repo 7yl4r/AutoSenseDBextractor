@@ -111,15 +111,16 @@ UNKNOWN_SENSOR\n')
 	#TODO: these should be chosen more cleverly:
 	currentTime = timeList[0][0]-1000	#start time is time of first in list
 	endTime = timeList[0][len(timeList[0])-1]+1000	#end time is last in list + 1k
-	deltaTime = 10*60*1000	#amount of time between points
-	while(currentTime < endTime):	#iterate between earliest and latest times TODO: choose these better somehow
+	deltaTime = 5*100	#amount of time between points (.5s)
+	i = 0	#start going through times at begginning (assume sorted)
+	startI = [0]*15	#array of last looked at times
+	while(currentTime < endTime):	#iterate between earliest and latest times
 		print '\ttime: ' + str(currentTime)
 		#get values for all vars at/near current time
-		i = 0
-		value = [-1]*16
+		value = [-1]*15
 		for var in range(0,15):		#iterate over all the sensors
-			#TODO: this should start at the last point (to improve speed)
-			for i in range(0,len(timeList[var])):		#iterate through all samples in the sensor TODO: was (2718)
+			endI = len(timeList[var])
+			for i in range(startI[var],endI):		#iterate through all samples in the sensor
 				dTime = abs(timeList[var][i] - currentTime)
 				if dTime < abs(timeList[var][i+1] - currentTime):	#if this time is closer to the window than the next time
 					#then this the closest time
@@ -127,6 +128,7 @@ UNKNOWN_SENSOR\n')
 						value[var] = dataList[var][i]
 					else: 	#point is not close enough, value should be...??? (maybe write dTimes to another file?)
 						value[var] = dataList[var][i]
+					startI[var] = i-1
 					break	#skip to next sensor
 			if value[var] == -1:	#if no acceptable time for the sensor was found
 				value[var] = dataList[var][0]		#set this to the first time???
@@ -138,6 +140,8 @@ UNKNOWN_SENSOR\n')
 		sensorsF.write('\n');	
 
 		#move to next time window
-		currentTime = currentTime + deltaTime	#move to next time	#TODO: set this better (deltaT?)
+		currentTime = currentTime + deltaTime	#move to next time
 
 	sensorsF.close()
+
+#newyorkyankeescaptainthurmanmunson15
