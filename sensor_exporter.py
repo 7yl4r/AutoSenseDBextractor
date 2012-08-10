@@ -59,57 +59,85 @@ sensors = ['sensor11',	#Galvanic Skin Response
 def exportSensors(c, fname):
 	sensorsF = open(fname, 'w')	#output File for sensors
 	#write the header:
-	sensorsF.write('sampleGroupID,\
-	sampleID/samplesInGroup,\
-	timestamp,\
-	GSR,\
-	ECG,\
-	Body_temp,\
-	accelX,\
-	accelY,\
-	accelZ,\
-	Respiration,\
-	RRintervals,\
-	Latitude,\
-	Longitude,\
-	Speed,\
-	Inhalation,\
-	Exhalation,\
-	IE_ratio,\
-	UNKNOWN_SENSOR\n')
+	sensorsF.write('timestamp,\
+GSR,\
+ECG,\
+Body_temp,\
+accelX,\
+accelY,\
+accelZ,\
+Respiration,\
+RRintervals,\
+Latitude,\
+Longitude,\
+Speed,\
+Inhalation,\
+Exhalation,\
+IE_ratio,\
+UNKNOWN_SENSOR\n')
+	print 'loading in data from:\n'
+	dataList = []
+	timeList = []
 	for table in sensors:
-		for row in c.execute("SELECT * FROM " + table): # + " ORDER BY start_timestamp):
-			#startTime = row[1]/1000
-			#endTime = row[2]/1000
-			#midTime= datetime.datetime.fromtimestamp(int((startTime+(startTime-endTime)/2)/1000.0)).strftime('%m/%d/%Y %H:%M:%S')	#calculate time for point (middle of read time) ((divide by 1000.0 to convert from ms to s))
-			groupID = row[0]
+		tableData = []
+		tableTime = []
+		for row in c.execute("SELECT * FROM " + table + " ORDER BY start_timestamp"):
+			d = []
+			t = []
 			nOfSamples = row[3]
-
 			# raw data
 			dat = str(row[5])
 			data = dat.encode('hex')		#row[5] is BLOB of samples
 			tim = str(row[4])
 			timestamp = tim.encode('hex')		#row[4] is BLOB of timestamps
-		
-
 			for i in range(0,nOfSamples):#range(0,len(timestamp)/16):
 			#NOTE: len(timestamp)/16 == nOfSamples
 				dsize = 8	#int d;
 				tsize = 16	#long t;
 				hexd = data[dsize*i:dsize*(i+1)]
 				hext = timestamp[tsize*i:tsize*(i+1)]
-				d = int(hexd, 16)
-				t = long(hext, 16)
-			#	print tim[16*i:16*(i+1)] + '=' + str(hext) + '=' + str(t) + '\n'
-			#	print dat[8*i:8*(i+1)] + '=' + str(hexd) + '=' + str(d) + '\n'
-					
-				# "unix time,sample"
-				if (d != 4626):		#TODO: why is this the default value???
-					sensorsF.write(str(groupID) + ',' + str(i+1) + '/' + str(nOfSamples) + ',')
-					sensorsF.write(str(t) + ',' + sensorsMap(table, d) + '\n')
-				#else don't write it
-
+				dd = int(hexd, 16)
+				tt = long(hext, 16)
+				d.append(dd)
+				t.append(tt)
+			tableData.extend(d)
+			tableTime.extend(t)
+		dataList.append(tableData)
+		timeList.append(tableTime)
 		print '=== ' + str(table) + ' ==='
 		for column in c.description:
 			print str(column[0])
+	print '\nmerging data at:'
+	#TODO: these should be chosen more cleverly:
+	currentTime = timeList[0][0]-1000	#start time is time of first in list
+	endTime = timeList[0][len(timeList[0])-1]+1000	#end time is last in list + 1k
+	deltaTime = 10*60*1000	#amount of time between points
+	while(currentTime < endTime):	#iterate between earliest and latest times TODO: choose these better somehow
+		print '\ttime: ' + str(currentTime)
+		#get values for all vars at/near current time
+		i = 0
+		value = [-1]*16
+		for var in range(0,15):		#iterate over all the sensors
+			#TODO: this should start at the last point (to improve speed)
+			for i in range(0,len(timeList[var])):		#iterate through all samples in the sensor TODO: was (2718)
+				dTime = abs(timeList[var][i] - currentTime)
+				if dTime < abs(timeList[var][i+1] - currentTime):	#if this time is closer to the window than the next time
+					#then this the closest time
+					if dTime < deltaTime/2:		#check if the time is within the window					
+						value[var] = dataList[var][i]
+					else: 	#point is not close enough, value should be...??? (maybe write dTimes to another file?)
+						value[var] = dataList[var][i]
+					break	#skip to next sensor
+			if value[var] == -1:	#if no acceptable time for the sensor was found
+				value[var] = dataList[var][0]		#set this to the first time???
+		#write values & time to file
+		sensorsF.write(str(currentTime)+',')
+		for val in value:	#write values
+			sensorsF.write(str(val) + ',')
+		sensorsF.seek(sensorsF.tell()-1,0);	#go back one to overwrite the last comma
+		sensorsF.write('\n');	
+
+		#move to next time window
+		currentTime = currentTime + deltaTime	#move to next time	#TODO: set this better (deltaT?)
+
 	sensorsF.close()

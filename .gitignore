@@ -1,5 +1,6 @@
 *.pyc
 old/
-db/
 *~
-output
+output/
+db/
+

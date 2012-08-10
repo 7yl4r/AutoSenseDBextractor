@@ -1,7 +1,4 @@
 import sqlite3	#for database access
-import datetime	#for converting from unix time to datetime
-
-import struct #for interpreting binary blobs in db
 
 import sensor_exporter
 import model_exporter
