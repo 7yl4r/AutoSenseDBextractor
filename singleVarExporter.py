@@ -6,9 +6,9 @@ import varList
 def export(c, var):
 	varGroup = 'UNKOWN_DATA_GROUP'	#default folder name
 	name = var	#default file name
-	if (var in sensors):
+	if (var in varList.sensors):
 		varGroup = 'sensors'
-		name = sensorNames[sensors.index(var)]
+		name = varList.sensorNames[varList.sensors.index(var)]
 	#TODO: add other elifs
 	outDir = 'output/'+varGroup+'/'		#output directory
 	if not os.path.exists(outDir):		#ensure output directory exists
@@ -17,7 +17,7 @@ def export(c, var):
 	#write the header:
 	outF.write('timestamp,value\n')
 
-	print 'loading in data for '+var+'\n'
+	print 'exporting '+var+'...'
 
 	for row in c.execute("SELECT * FROM " + var + " ORDER BY start_timestamp"):
 		nOfSamples = row[3]
