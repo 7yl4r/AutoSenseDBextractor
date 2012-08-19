@@ -56,7 +56,7 @@ sensors = ['sensor11',	#Galvanic Skin Response
 	]
 
 #params: c = cursor for db; fname = output filename 
-def exportSensors(c, fname):
+def exportMergedSensors(c, fname):
 	sensorsF = open(fname, 'w')	#output File for sensors
 	#write the header:
 	sensorsF.write('timestamp,\

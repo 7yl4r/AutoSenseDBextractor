@@ -1,3 +1,7 @@
+#	This file exports all variables into one large csv file 
+#
+#
+
 import sqlite3	#for database access
 
 def midTime(res, i):	#retuns midTime in res for row i, assuming start_time in 2nd column, end_time in 3rd

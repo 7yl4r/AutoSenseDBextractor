@@ -4,7 +4,9 @@
 
 import sqlite3	#for database access
 
-import exporters
+import sensor_exporter
+import model_exporter
+import feature_exporter
 
 #set up sqlite db stream
 FILENAME="db/StressInferencePhone_7thApril_Demo_For_Commercial_Appeal.db"
@@ -24,6 +26,6 @@ otherTables = ['EMA_metadata',
 	'incentives'
 	]
 
-exporters.exportSensors(c,"output/sensorsOut.csv")
-exporters.exportModels(c,"output/modelsOut.csv")
-exporters.exportFeatures(c,"output/featuresOut.csv")
+sensor_exporter.exportSensors(c,"output/sensorsOut.csv")
+model_exporter.exportModels(c,"output/modelsOut.csv")
+feature_exporter.exportFeatures(c,"output/featuresOut.csv")
