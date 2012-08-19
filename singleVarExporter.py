@@ -1,42 +1,6 @@
 import os.path	#for dir checking & creation
 
-# ===================================================================================
-# ================================== SENSORS ========================================
-# ===================================================================================
-
-#sensors assumed to be of the form:
-# _id, start_timestamp, end_timestamp, num_samples, timestamps, samples
-sensors = ['sensor11',	#Galvanic Skin Response
-	'sensor12',	#Electocardiogram
-	'sensor13',	#Body Temperature
-	'sensor18',	#Chestband Accelerometer X
-	'sensor19',	#Chestband Accelerometer Y
-	'sensor20',	#Chestband Accelerometer Z
-	'sensor21',	#Respiration
-	'sensor22',	#RR intervals from Heart Rate Signal
-	'sensor23',	#Latitude from GPS
-	'sensor24',	#Longitude from GPS
-	'sensor25',	#Speed from GPS
-	'sensor95',	#Inhalation (virtual)
-	'sensor96',	#Exhalation (virtual)
-	'sensor97',	#IE ratio (virtual)
-	'sensor98'	#???
-	]
-sensorNames = ['GSR',
-'ECG',
-'Body_temp',
-'accelX',
-'accelY',
-'accelZ',
-'Respiration',
-'RRintervals',
-'Latitude',
-'Longitude',
-'Speed',
-'Inhalation',
-'Exhalation',
-'IE_ratio',
-'UNKNOWN_SENSOR']
+import varList
 
 #params: c = cursor for db; var = variable to output 
 def export(c, var):

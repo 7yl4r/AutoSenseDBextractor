@@ -5,6 +5,3 @@ from sensor_exporter import exportSensors
 
 #data-sampling (merging) exporters:
 from sensor_mergeColumn import exportMergedSensors
-
-#other:
-from singleVarExporter import export
