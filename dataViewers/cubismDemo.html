@@ -100,8 +100,8 @@ header {
 }
 
 </style>
-<script src="d3.v2.js?2.9.1"></script>
-<script src="cubism.v1.js?1.0.0"></script>
+<script src="libs/d3.v2.js?2.9.1"></script>
+<script src="libs/cubism.v1.js?1.0.0"></script>
 <body id="demo">
 <script>
 
@@ -123,7 +123,23 @@ d3.select("body").append("div")
     .call(context.rule());
 
 d3.select("body").selectAll(".horizon")
-    .data(["AAPL", "BIDU", "SINA", "GOOG", "MSFT", "YHOO", "ADBE", "REDF", "INSP", "IACI", "AVID", "CCUR", "DELL", "DGII", "HPQ", "SGI", "SMCI", "SNDK", "SYNA"].map(stock))
+    //.data(["AAPL", "BIDU", "SINA", "GOOG", "MSFT", "YHOO", "ADBE", "REDF", "INSP", "IACI", "AVID", "CCUR", "DELL", "DGII", "HPQ", "SGI", "SMCI", "SNDK", "SYNA"].map(stock))
+    .data(["GSR",
+	"ECG",
+	"Body_temp",
+	"accelX",
+	"accelY",
+	"accelZ",
+	"Respiration",
+	"RRintervals",
+	"Latitude",
+	"Longitude",
+	"Speed",
+	"Inhalation",
+	"Exhalation",
+	"IE_ratio",
+	"UNKNOWN_SENSOR"].map(stock))
+
   .enter().insert("div", ".bottom")
     .attr("class", "horizon")
   .call(context.horizon()
@@ -137,8 +153,8 @@ context.on("focus", function(i) {
 function stock(name) {
   var format = d3.time.format("%d-%b-%y");
   return context.metric(function(start, stop, step, callback) {
-    d3.csv("./../output/stocks/" + name + ".csv", function(rows) {
-      rows = rows.map(function(d) { return [format.parse(d.Date), +d.Open]; }).filter(function(d) { return d[1]; }).reverse();	
+    d3.csv("./../output/sensors/" + name + ".csv", function(rows) {
+      rows = rows.map(function(d) { return [d.timestamp, +d.value]; }).filter(function(d) { return d[1]; }).reverse();	
       var date = rows[0][0], compare = 100, value = rows[0][1], values = [value]; 	//what does compare do??? (edit from compare = rows[400][1]
       rows.forEach(function(d) {
         while ((date = d3.time.day.offset(date, 1)) < d[0]) values.push(value);
